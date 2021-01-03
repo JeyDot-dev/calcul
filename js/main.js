@@ -55,10 +55,6 @@ mathOperators.forEach((item) => {
                 stringArray[stringArray.length - 1] !== "x" &&
                 stringArray[stringArray.length - 1] !== "/"
             ) {
-                console.log(
-                    "this is the last character ",
-                    stringArray[stringArray.length - 1]
-                );
                 stringArray.push(item.innerHTML);
                 console.log(stringArray);
             }
@@ -144,7 +140,7 @@ equal.addEventListener("click", function () {
     let finalString = stringArray.join(" ");
     finalString = finalString.replace(/x/g, "*");
     total = eval(finalString);
-    screenCalc.innerHTML = total;
+    screenCalc.innerHTML = Math.round((total + Number.EPSILON) * 10000) / 10000;
     stringArray = [];
     stringCalc = total.toString();
 });
