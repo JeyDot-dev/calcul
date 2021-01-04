@@ -1,4 +1,5 @@
 const screenCalc = document.querySelector(".ecran");
+/*
 const one = document.getElementById("1");
 const two = document.getElementById("2");
 const three = document.getElementById("3");
@@ -9,19 +10,32 @@ const seven = document.getElementById("7");
 const eight = document.getElementById("8");
 const nine = document.getElementById("9");
 const zero = document.getElementById("0");
+*/
 const mathOperators = document.querySelectorAll(".operateurs");
 const equal = document.querySelector(".egal");
-const allButtons = document.getElementsByClassName("touchesCalculette");
+const allButtons = document.querySelector(".touchesCalculette").querySelectorAll("span");
 const resetButton = document.querySelector(".reset");
 const dot = document.querySelectorAll(".touchesBas")[1];
 
 let stringCalc = "";
 let stringArray = [];
 let total = 0;
-
+function showOnDisplay(string) {
+    screenCalc.innerHTML = string;
+}
+function invalidInput() {
+    screenCalc.style.fontSize = "small";
+    screenCalc.style.color = "rgb(218, 168, 170)";
+    showOnDisplay("use a valid input!");
+    setTimeout(function () {
+        screenCalc.style.fontSize = null;
+        screenCalc.style.color = null;
+        showOnDisplay(stringCalc);
+    }, 1250);
+}
 function softReset() {
     stringCalc = "";
-    screenCalc.innerHTML = stringCalc;
+    showOnDisplay(stringCalc);
 }
 
 function hardReset() {
@@ -36,40 +50,84 @@ function addToStringArray() {
 }
 function hasNumber(s) {
     return /\d/.test(s);
-  }
-
-dot.addEventListener("click", function(e){
+}
+function pushInput(input) {
+    stringArray.push(input);
+    console.log(stringArray);
+}
+dot.addEventListener("click", function (e) {
     const addDot = ".";
-    if(!stringCalc.includes(".") && hasNumber(stringCalc)){
+    if (!stringCalc.includes(".") && hasNumber(stringCalc)) {
         stringCalc = stringCalc.concat(addDot);
-        screenCalc.innerHTML = stringCalc;
+        showOnDisplay(stringCalc);
     }
 
 });
 
-mathOperators.forEach((item) => {
-    item.addEventListener("click", function (e) {
-        if (stringCalc.length) {
+// x et / au clavier
+addEventListener("keypress", function (e) {
+    if (e.key == "/" || e.key == "*") {
+        if (stringCalc.length && stringCalc.slice(-1) !== "-") {
             addToStringArray();
             if (
                 stringArray[stringArray.length - 1] !== "x" &&
                 stringArray[stringArray.length - 1] !== "/"
             ) {
-                stringArray.push(item.innerHTML);
-                console.log(stringArray);
+                pushInput(e.key);
             }
         } else {
-            screenCalc.style.fontSize = "small";
-            screenCalc.style.color = "rgb(218, 168, 170)";
-            screenCalc.innerHTML = "use a valid input!";
-            setTimeout(function () {
-                screenCalc.style.fontSize = null;
-                screenCalc.style.color = null;
-                screenCalc.innerHTML = stringArray;
-            }, 1500);
+            invalidInput();
+        }
+    }
+});
+
+mathOperators.forEach((item) => {
+    item.addEventListener("click", function (e) {
+        if (stringCalc.length && stringCalc.slice(-1) !== "-") {
+            addToStringArray();
+            if (
+                stringArray[stringArray.length - 1] !== "x" &&
+                stringArray[stringArray.length - 1] !== "/"
+            ) {
+                pushInput(item.innerHTML);
+            }
+        }
+        else if (item.innerHTML == "-" && !stringCalc.includes("-")) {
+            stringCalc = stringCalc.concat("-");
+            showOnDisplay(stringCalc);
+        }
+        else {
+            invalidInput();
         }
     });
 });
+
+allButtons.forEach((item) => {
+    if (item.innerHTML >= 0 && item.innerHTML <= 9) {
+        item.addEventListener("click", function (e) {
+            stringCalc = stringCalc.concat(item.innerHTML);
+            showOnDisplay(stringCalc);
+        });
+    }
+});
+
+resetButton.addEventListener("click", function (e) {
+    hardReset();
+});
+
+equal.addEventListener("click", function () {
+    addToStringArray();
+    let finalString = stringArray.join(" ");
+    finalString = finalString.replace(/x/g, "*");
+    total = eval(finalString);
+    showOnDisplay(Math.round((total + Number.EPSILON) * 10000) / 10000);
+    stringArray = [];
+    stringCalc = total.toString();
+});
+
+/*
+
+PREMIERE VERSION CHIFFRES
 
 one.addEventListener("click", function (e) {
     const addOne = 1;
@@ -130,17 +188,4 @@ zero.addEventListener("click", function (e) {
     stringCalc = stringCalc.concat(addZero);
     screenCalc.innerHTML = stringCalc;
 });
-
-resetButton.addEventListener("click", function (e) {
-    hardReset();
-});
-
-equal.addEventListener("click", function () {
-    addToStringArray();
-    let finalString = stringArray.join(" ");
-    finalString = finalString.replace(/x/g, "*");
-    total = eval(finalString);
-    screenCalc.innerHTML = Math.round((total + Number.EPSILON) * 10000) / 10000;
-    stringArray = [];
-    stringCalc = total.toString();
-});
+*/
